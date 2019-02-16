@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument('--log_dir', type=str, default='logs/',help='decay rate of learning rate')
     parser.add_argument('--pretrain', type=str, default=None,help='whether use pretrain model')
     parser.add_argument('--train_metric', type=bool, default=False, help='Whether evaluate on training data')
-    parser.add_argument('--use_vox', type=bool, default=False, help='Whether use capsnet extract voxel feature or not')
+    parser.add_argument('--use_vox', type=bool, default=False, help='Whether use 3DCNN extract voxel feature or not')
     parser.add_argument('--cnn_structure', type=str, default='UNet', help='fill [CapsNet] or [UNet] when use_vox is True')
     parser.add_argument('--gpu', type=str, default='0', help='specify gpu device')
     parser.add_argument('--rotation',  default=None,help='range of training rotation')
@@ -91,9 +91,9 @@ def main(args):
     model_module = importlib.import_module(args.model_name)
     shutil.copy('./%s.py'%model_module.__name__, str(file_dir))
 
-    model = model_module.PointNetSeg(k=num_classes,
-                                     n_routing=args.n_routing_iter,
-                                     use_vox_feature=USE_VOXEL_FEATURE,
+    model = model_module.PointNetSeg(k = num_classes,
+                                     n_routing = args.n_routing_iter,
+                                     use_vox_feature = USE_VOXEL_FEATURE,
                                      cnn_structure = args.cnn_structure,
                                      meshsize = args.meshsize)
 
