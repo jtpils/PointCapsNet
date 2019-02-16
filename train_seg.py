@@ -41,6 +41,8 @@ def parse_args():
     parser.add_argument('--model_name', type=str, default='PointCapsNetSeg', help='Name of model')
     parser.add_argument('--learning_rate', type=float, default=5e-4, help='learning rate for training')
     parser.add_argument('--decay_rate', type=float, default=1e-4, help='weight decay')
+    parser.add_argument('--meshsize', type=int, default=32, help='mesh size')
+    parser.add_argument('--optimizer', type=str, default='SGD', help='type of optimizer')
 
     return parser.parse_args()
 
@@ -92,7 +94,8 @@ def main(args):
     model = model_module.PointNetSeg(k=num_classes,
                                      n_routing=args.n_routing_iter,
                                      use_vox_feature=USE_VOXEL_FEATURE,
-                                     cnn_structure = args.cnn_structure)
+                                     cnn_structure = args.cnn_structure,
+                                     meshsize = args.meshsize)
 
     # model = PointNetSeg(k=num_classes,n_routing=args.n_routing_iter,use_vox_feature=USE_VOXEL_FEATURE)
     if args.pretrain is not None:
@@ -105,14 +108,17 @@ def main(args):
     pretrain = args.pretrain
     init_epoch = int(pretrain[-14:-11]) if args.pretrain is not None else 0
 
-    #optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=args.learning_rate,
-        betas=(0.9, 0.999),
-        eps=1e-08,
-        weight_decay=args.decay_rate
-    )
+    if args.optimizer == 'SGD':
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    elif args.optimizer == 'Adam':
+        optimizer = torch.optim.Adam(
+            model.parameters(),
+            lr=args.learning_rate,
+            betas=(0.9, 0.999),
+            eps=1e-08,
+            weight_decay=args.decay_rate
+        )
+
     model.cuda()
     history = defaultdict(lambda: list())
     best_acc = 0
