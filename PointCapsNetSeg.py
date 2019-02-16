@@ -171,9 +171,10 @@ class CapsuleBlock(torch.nn.Module):
         return pcl2_feature
 
 class PointNetSeg(nn.Module):
-    def __init__(self, k = 2, n_routing=1, use_vox_feature = True, cnn_structure = 'UNet'):
+    def __init__(self, k = 2, n_routing=1, use_vox_feature = True, cnn_structure = 'UNet', meshsize = 32):
         super(PointNetSeg, self).__init__()
         self.k = k
+        self.meshsize = meshsize
         self.use_vox_feature = use_vox_feature
         self.cnn_structure = cnn_structure
         self.CapsuleBlock = CapsuleBlock(n_routing_iter = n_routing).cuda()
@@ -190,7 +191,7 @@ class PointNetSeg(nn.Module):
         self.bn2 = nn.BatchNorm1d(256)
         self.bn3 = nn.BatchNorm1d(128)
 
-    def forward(self, x, ):
+    def forward(self, x):
         init_feature = x
         batchsize = x.size()[0]
         n_pts = x.size()[2]
@@ -203,7 +204,7 @@ class PointNetSeg(nn.Module):
         elif self.use_vox_feature and self.cnn_structure == 'UNet':
             pcl_feature = x_skip.permute(0, 2, 1)
             # print('pcl_feature',pcl_feature.size())
-            mesh_feature, vox2point_idx = self.UNet.pcl2vox(init_feature.permute(0, 2, 1), pcl_feature, n=32)
+            mesh_feature, vox2point_idx = self.UNet.pcl2vox(init_feature.permute(0, 2, 1), pcl_feature, n=self.meshsize)
             mesh_feature = mesh_feature.permute(0, 4, 1, 2, 3)
             # print('mesh_feature',mesh_feature.size())
             out = self.UNet(mesh_feature)
