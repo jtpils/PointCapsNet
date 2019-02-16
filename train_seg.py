@@ -43,11 +43,12 @@ def parse_args():
     parser.add_argument('--decay_rate', type=float, default=1e-4, help='weight decay')
     parser.add_argument('--meshsize', type=int, default=32, help='mesh size')
     parser.add_argument('--optimizer', type=str, default='SGD', help='type of optimizer')
+    parser.add_argument('--multi_gpu', type=str, default=None, help='whether use multi gpu training')
 
     return parser.parse_args()
 
 def main(args):
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu if args.multi_gpu is None else '0,1,2,3'
     '''CREATE DIR'''
     experiment_dir = Path('./experiment/')
     experiment_dir.mkdir(exist_ok=True)
@@ -119,7 +120,15 @@ def main(args):
             weight_decay=args.decay_rate
         )
 
-    model.cuda()
+    '''GPU selection and multi-GPU'''
+    if args.multi_gpu is not None:
+        device_ids = [int(x) for x in args.multi_gpu.split(',')]
+        torch.backends.cudnn.benchmark = True
+        model.cuda(device_ids[0])
+        model = torch.nn.DataParallel(model, device_ids=device_ids)
+    else:
+        model.cuda()
+
     history = defaultdict(lambda: list())
     best_acc = 0
     best_meaniou = 0
