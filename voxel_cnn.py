@@ -99,6 +99,7 @@ class UNet3D(Module):
         self.deconv_blk1 = Deconv3D_Block(feat_channels[1], feat_channels[0])
 
         # Final 1*1 Conv Segmentation map
+        #self.one_conv = Conv3d(feat_channels[0], num_channels, kernel_size=1, stride=1, padding=0, bias=True)
         self.one_conv = Conv3d(feat_channels[0], output_channel, kernel_size=1, stride=1, padding=0, bias=True)
 
         # Activation function
@@ -138,7 +139,7 @@ class UNet3D(Module):
         '''
         :param vox2point_idx: the corresponding relationship between voxel and pointcloud
         :param vox_feature: BxNxNxNxC tensor
-        :return: BxPx3 tensor （P is the number of point in each pointcloud）
+        :return: BxPx3 tensor (P is the number of point in each pointcloud)
         '''
         pcl_feature = np.zeros((vox_feature.size(0), vox2point_idx.shape[1], vox_feature.size(1)))
         vox_feature = vox_feature.cpu().data.numpy()
@@ -199,7 +200,7 @@ if __name__ == '__main__':
 
     import torch
 
-    x = torch.ones(1, 32, 32, 32, 32).cuda()
+    x = torch.ones(1, 32, 46, 46, 46).cuda()
     out = net(x)
     print(out.size())
 
