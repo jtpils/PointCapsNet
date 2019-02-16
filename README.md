@@ -118,4 +118,14 @@ xx和yy均为两位数，是点云旋转角度的范围，如`01,60`是将训练
     
     parser.add_argument('--rotation',  default=None,help='range of training rotation')
     
-    parser.add_argument('--n_routing_iter', type=int, default=1, help='Number if rounting iteration')`
+    parser.add_argument('--n_routing_iter', type=int, default=1, help='Number if rounting iteration')
+    
+    parser.add_argument('--model_name', type=str, default='PointCapsNetSeg', help='Name of model')
+        
+    parser.add_argument('--learning_rate', type=float, default=5e-4, help='learning rate for training')
+    
+    parser.add_argument('--decay_rate', type=float, default=1e-4, help='weight decay')
+    
+    parser.add_argument('--meshsize', type=int, default=32, help='mesh size')
+    
+    parser.add_argument('--optimizer', type=str, default='SGD', help='type of optimizer')`
